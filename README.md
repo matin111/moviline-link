@@ -1,4 +1,4 @@
-# Moviline Link v1.0.1
+# Moviline Link v1.0.2
 
 Moviline Link یک تونل لایه ۳ بین سرور ایران و خارج است. هدف این نسخه این است که ترافیک IP کاربران VPN بعد از terminate شدن روی سرور ایران، مستقل از پروتکل کاربر، از سرور خارج NAT شود.
 
@@ -25,7 +25,7 @@ Moviline Link یک تونل لایه ۳ بین سرور ایران و خارج �
 ### خارج
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.1/install.sh) exit \
+bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.2/install.sh) exit \
   --domain sub1.in88.sbs \
   --cert /root/cert/sub1.in88.sbs/fullchain.pem \
   --key /root/cert/sub1.in88.sbs/privkey.pem
@@ -36,7 +36,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.
 ### ایران
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.1/install.sh) iran \
+bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.2/install.sh) iran \
   --exit-ip 92.119.166.113 \
   --domain sub1.in88.sbs \
   --secret YOUR_SHARED_SECRET
@@ -59,7 +59,7 @@ moviline-link primary
 moviline-link backup
 ```
 
-در v1.0.1 حالت `auto` مسیر WSS/TCP را ترجیح می‌دهد. اگر WSS از دسترس خارج شود مسیر UDP استفاده می‌شود و پس از چند health check موفق، سیستم دوباره به WSS برمی‌گردد.
+در v1.0.2 حالت `auto` مسیر WSS/TCP را ترجیح می‌دهد. اگر WSS از دسترس خارج شود مسیر UDP استفاده می‌شود و پس از چند health check موفق، سیستم دوباره به WSS برمی‌گردد.
 
 ## فعال‌کردن subnetهای کاربران
 
@@ -102,7 +102,7 @@ Subnetها را حدس نزنید. قبل از فعال‌سازی production ب
 ## Update / Uninstall
 
 ```bash
-moviline-link update v1.0.1
+moviline-link update v1.0.2
 moviline-link uninstall
 ```
 
