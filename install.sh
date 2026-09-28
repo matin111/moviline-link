@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.0.0"
+VERSION="1.0.1"
 GOST_VERSION="3.3.0"
 GOST_AMD64_SHA256="676fb7f78d267b6ae73df719c0c7f2b565dde7147da935cfafbc1e1da558b6d5"
 GOST_ARM64_SHA256="d03699e3f385d4ff5dad68046712adfcc7515325a064d2ab046e0bece30f8f8f"
@@ -10,7 +10,7 @@ BIN_CTL="/usr/local/sbin/moviline-link"
 TABLE_ID="250"
 TABLE_NAME="moviline"
 REPO="${MOVILINE_REPO:-matin111/moviline-link}"
-REF="${MOVILINE_REF:-v1.0.0}"
+REF="${MOVILINE_REF:-v1.0.1}"
 BUNDLE_DIR=""
 
 say() { printf '%s\n' "$*"; }
