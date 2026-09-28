@@ -1,0 +1,13 @@
+[Unit]
+Description=Moviline Link Path Watchdog
+After=moviline-link-routing.service
+Wants=moviline-link-routing.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/lib/moviline-link/watchdog.sh
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
