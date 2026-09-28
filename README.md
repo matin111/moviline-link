@@ -1,11 +1,11 @@
-# Moviline Link v1.0.0
+# Moviline Link v1.0.1
 
 Moviline Link یک تونل لایه ۳ بین سرور ایران و خارج است. هدف این نسخه این است که ترافیک IP کاربران VPN بعد از terminate شدن روی سرور ایران، مستقل از پروتکل کاربر، از سرور خارج NAT شود.
 
 هسته بر پایه GOST v3.3.0 و TUN است:
 
-- Primary: TUN روی UDP/443
-- Backup: TUN over Relay + WSS روی TCP/443
+- Preferred path in auto mode: TUN over Relay + WSS روی TCP/443
+- Fallback path: TUN روی UDP/443
 - دو interface مستقل: `mlp0` و `mlb0`
 - Policy Routing فقط برای subnetهایی که خودتان مشخص می‌کنید
 - Watchdog و failover خودکار
@@ -25,7 +25,7 @@ Moviline Link یک تونل لایه ۳ بین سرور ایران و خارج �
 ### خارج
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.0/install.sh) exit \
+bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.1/install.sh) exit \
   --domain sub1.in88.sbs \
   --cert /root/cert/sub1.in88.sbs/fullchain.pem \
   --key /root/cert/sub1.in88.sbs/privkey.pem
@@ -36,7 +36,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.
 ### ایران
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.0/install.sh) iran \
+bash <(curl -fsSL https://raw.githubusercontent.com/matin111/moviline-link/v1.0.1/install.sh) iran \
   --exit-ip 92.119.166.113 \
   --domain sub1.in88.sbs \
   --secret YOUR_SHARED_SECRET
@@ -59,7 +59,7 @@ moviline-link primary
 moviline-link backup
 ```
 
-حالت `auto` ابتدا Primary را استفاده می‌کند. اگر Primary از دسترس خارج شود Backup فعال می‌شود. برای جلوگیری از flap، بازگشت از Backup به Primary بعد از چند health check موفق انجام می‌شود.
+در v1.0.1 حالت `auto` مسیر WSS/TCP را ترجیح می‌دهد. اگر WSS از دسترس خارج شود مسیر UDP استفاده می‌شود و پس از چند health check موفق، سیستم دوباره به WSS برمی‌گردد.
 
 ## فعال‌کردن subnetهای کاربران
 
@@ -102,7 +102,7 @@ Subnetها را حدس نزنید. قبل از فعال‌سازی production ب
 ## Update / Uninstall
 
 ```bash
-moviline-link update v1.0.0
+moviline-link update v1.0.1
 moviline-link uninstall
 ```
 
