@@ -396,7 +396,7 @@ print_service_state() {
   say "primary : $(systemctl is-active moviline-link-primary.service 2>/dev/null || true)"
   say "backup  : $(systemctl is-active moviline-link-backup.service 2>/dev/null || true)"
   say "routing : $(systemctl is-active moviline-link-routing.service 2>/dev/null || true)"
-  say "watchdog: $(systemctl is-active movililine-link-watchdog.service 2>/dev/null || true)"
+  say "watchdog: $(systemctl is-active moviline-link-watchdog.service 2>/dev/null || true)"
 }
 
 main() {
@@ -440,5 +440,8 @@ main() {
   fi
 
   say
-  say "نصب انجام شد. اثر ROUTE_CIDRS خالی باشد مسیر فعلی کاربران تغییر نمي‌کند."
-  say "برای عيبی‌یابید)��)b��b�Ghr�+���
+  say "نصب انجام شد. اگر ROUTE_CIDRS خالی باشد مسیر فعلی کاربران تغییر نمی‌کند."
+  say "برای عیب‌یابی: moviline-link doctor"
+}
+
+main "$@"
