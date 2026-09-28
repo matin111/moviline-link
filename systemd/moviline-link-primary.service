@@ -1,0 +1,14 @@
+[Unit]
+Description=Moviline Link Primary L3 Tunnel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/gost -C /etc/moviline-link/primary.yml
+Restart=always
+RestartSec=2
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target
