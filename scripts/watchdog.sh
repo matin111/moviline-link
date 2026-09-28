@@ -3,6 +3,7 @@
 CONF="/etc/moviline-link/config.env"
 STATE_FILE="/run/moviline-link.state"
 MODE_FILE="/etc/moviline-link/mode"
+
 [ -f "$CONF" ] || exit 1
 # shellcheck disable=SC1090
 . "$CONF"
@@ -16,7 +17,7 @@ split_routes() {
 ping_peer() {
   local iface="$1" peer="$2"
   ip link show "$iface" >/dev/null 2>&1 || return 1
-  ping -I "$iface" -c 1 -W 1 "$peer" >/dev/null 2>&1
+  ping -I "$iface" -c 2 -W 1 -i 0.2 "$peer" >/dev/null 2>&1
 }
 
 set_iran_path() {
@@ -41,7 +42,11 @@ set_exit_path() {
   done
 }
 
-backup_success_streak=0
+primary_success=0
+backup_success=0
+primary_fail=0
+backup_fail=0
+both_fail=0
 
 while true; do
   mode="$(cat "$MODE_FILE" 2>/dev/null || echo auto)"
@@ -57,38 +62,81 @@ while true; do
     ping_peer "$BACKUP_IF" "$BACKUP_IRAN_IP" && backup_ok=1
   fi
 
-  if [ "$backup_ok" = "1" ]; then
-    backup_success_streak=$((backup_success_streak + 1))
+  if [ "$primary_ok" = "1" ]; then
+    primary_success=$((primary_success + 1))
+    primary_fail=0
   else
-    backup_success_streak=0
+    primary_success=0
+    primary_fail=$((primary_fail + 1))
   fi
 
-  active="none"
+  if [ "$backup_ok" = "1" ]; then
+    backup_success=$((backup_success + 1))
+    backup_fail=0
+  else
+    backup_success=0
+    backup_fail=$((backup_fail + 1))
+  fi
+
+  if [ "$primary_ok" = "0" ] && [ "$backup_ok" = "0" ]; then
+    both_fail=$((both_fail + 1))
+  else
+    both_fail=0
+  fi
+
+  active="$old"
+
   case "$mode" in
     primary|udp)
-      [ "$primary_ok" = "1" ] && active="primary"
+      if [ "$primary_ok" = "1" ]; then
+        active="primary"
+      elif [ "$primary_fail" -ge 3 ]; then
+        active="none"
+      fi
       ;;
     backup|wss)
-      [ "$backup_ok" = "1" ] && active="backup"
+      if [ "$backup_ok" = "1" ]; then
+        active="backup"
+      elif [ "$backup_fail" -ge 3 ]; then
+        active="none"
+      fi
       ;;
     *)
-      if [ "$old" = "primary" ]; then
-        if [ "$backup_ok" = "1" ] && [ "$backup_success_streak" -ge 3 ]; then
-          active="backup"
-        elif [ "$primary_ok" = "1" ]; then
-          active="primary"
-        elif [ "$backup_ok" = "1" ]; then
-          active="backup"
-        fi
-      elif [ "$backup_ok" = "1" ]; then
-        active="backup"
-      elif [ "$primary_ok" = "1" ]; then
-        active="primary"
-      fi
+      case "$old" in
+        backup)
+          if [ "$backup_ok" = "1" ]; then
+            active="backup"
+          elif [ "$backup_fail" -ge 3 ] && [ "$primary_ok" = "1" ]; then
+            active="primary"
+          elif [ "$both_fail" -ge 3 ]; then
+            active="none"
+          fi
+          ;;
+        primary)
+          if [ "$backup_success" -ge 2 ]; then
+            active="backup"
+          elif [ "$primary_ok" = "1" ]; then
+            active="primary"
+          elif [ "$primary_fail" -ge 3 ] && [ "$backup_ok" = "1" ]; then
+            active="backup"
+          elif [ "$both_fail" -ge 3 ]; then
+            active="none"
+          fi
+          ;;
+        *)
+          if [ "$backup_success" -ge 2 ]; then
+            active="backup"
+          elif [ "$primary_success" -ge 2 ]; then
+            active="primary"
+          elif [ "$both_fail" -ge 3 ]; then
+            active="none"
+          fi
+          ;;
+      esac
       ;;
   esac
 
-  if [ "$active" != "none" ]; then
+  if [ "$active" = "primary" ] || [ "$active" = "backup" ]; then
     if [ "$ROLE" = "iran" ]; then
       set_iran_path "$active"
     else
@@ -98,7 +146,7 @@ while true; do
 
   if [ "$active" != "$old" ]; then
     printf '%s\n' "$active" > "$STATE_FILE"
-    logger -t moviline-link "role=$ROLE path=$active primary_udp_ok=$primary_ok preferred_wss_ok=$backup_ok"
+    logger -t moviline-link "role=$ROLE mode=$mode path=$active udp_ok=$primary_ok wss_ok=$backup_ok udp_fail=$primary_fail wss_fail=$backup_fail"
   fi
 
   sleep 3
