@@ -132,11 +132,12 @@ validate_inputs() {
     [ -f "$KEY_FILE" ] || { die "Private key پیدا نشد: $KEY_FILE"; return 1; }
   fi
 
-  if [ "${#SECRET}" -gt 16 ]; then
-    SECRET="${SECRET:0:16}"
-  fi
   if [ "${#SECRET}" -lt 8 ]; then
     die "Shared secret باید حداقل 8 کاراکتر باشد."
+    return 1
+  fi
+  if [ "${#SECRET}" -gt 64 ]; then
+    die "Shared secret غیرعادی است (بیش از 64 کاراکتر). مقدار واقعی secret را دوباره وارد کنید."
     return 1
   fi
 
