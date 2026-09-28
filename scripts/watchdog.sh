@@ -33,7 +33,6 @@ set_exit_path() {
   local which="$1" cidr
   for cidr in $(split_routes); do
     [ -n "$cidr" ] || continue
-    ip route del "$cidr" table main 2>/dev/null || true
     if [ "$which" = "primary" ]; then
       ip route replace "$cidr" via "$PRIMARY_IRAN_IP" dev "$PRIMARY_IF" metric 10
     else
