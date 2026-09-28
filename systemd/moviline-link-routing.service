@@ -1,0 +1,12 @@
+[Unit]
+Description=Moviline Link Routing and NAT
+After=moviline-link-primary.service moviline-link-backup.service
+Wants=moviline-link-primary.service moviline-link-backup.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/moviline-link/apply-routing.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
